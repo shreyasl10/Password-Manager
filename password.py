@@ -65,7 +65,7 @@ while True:
     print("\n\n\n" + "-" * 90)
     print(("-" * 13) + "Welcome back " + masterU + ("-" * 13))
     print(
-        "Do you want to store a new password or view your passwords? \n  1:Store New \n  2:View Saved \n  3:Exit Program"
+        "Do you want to store a new password or view your passwords? \n  1:Store New \n  2:View Saved \n  3:Update existing password \n  4:Exit the program"
     )
     n = int(input("~ "))
     print("-" * 90)
@@ -120,7 +120,43 @@ while True:
                 break
             else:
                 print("\nNo such entries found. Please enter again\n\n")
-    elif n == 3:
+    elif n==3:
+        while True:
+            platform=input("Please enter the platform\n~ ")
+            username = input(
+                    "Please enter your username or email for the respective platform\n~ "
+                )
+            Oldpassword=input("Please enter your old password for this account\n~ ")
+            sql = (
+                    "SELECT password,crypt FROM "
+                    + masterU
+                    + " WHERE platform=%s AND username=%s"
+                )
+            val = (platform, username)
+            cursor.execute(sql, val)
+            password = cursor.fetchall()
+            if len(password) > 0:
+                crypt=bytes(password[0][1], "utf-8")
+                cipher_suite1 = Fernet(crypt)
+                while True:
+                    Newpassword=input("Please enter the new password\n~ ")
+                    confirm=input("Please re enter for confirmation\n~ ")
+                    if Newpassword==confirm:
+                        Newpassword=bytes(Newpassword,'utf-8')
+                        passu=cipher_suite1.encrypt(Newpassword)
+                        sql="UPDATE "+masterU+" SET password=%s WHERE username=%s AND platform=%s"
+                        val=(passu,username,platform)
+                        cursor.execute(sql,val)
+                        mydb.commit()
+                        print("Password changed successfully")
+                        break
+                    else:
+                        print("Password mismatch found. Please try again")
+                break
+            else:
+                print("No such records found. Please try again")
+
+    elif n == 4:
         print("\nThank you for using the program. Hope it was useful for you :)")
         break
     else:
