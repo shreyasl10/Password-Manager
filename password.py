@@ -6,7 +6,7 @@ cipher_suite = Fernet(key)
 
 # If you are using this on your system, please make sure to change the user and password values to your mysql server's appropriate username and password.
 mydb = mysql.connector.connect(
-    host="localhost", user="shreyas", password="root", database="passwordmanager"
+    host="localhost", user="root", password="", database="passwordmanager"
 )
 cursor = mydb.cursor()
 masterU = ""
@@ -26,8 +26,10 @@ while True:
             username = input(
                 "Please enter a username you want to use for this program\n~ "
             )
-            password = input("Please enter the master password for this program\n~ ")
-            confirm = input("Please re enter your password for confirmation\n~ ")
+            password = input(
+                "Please enter the master password for this program\n~ ")
+            confirm = input(
+                "Please re enter your password for confirmation\n~ ")
             if password == confirm:
                 sql = "INSERT INTO users VALUES(%s,%s);"
                 val = (username, password)
@@ -80,8 +82,10 @@ while True:
             "Please enter your username or email for the respective platform\n~ "
         )
         while True:
-            password = input("Now please enter your password for this platform\n~ ")
-            confirm = input("Please re-enter the password for confirmation\n~ ")
+            password = input(
+                "Now please enter your password for this platform\n~ ")
+            confirm = input(
+                "Please re-enter the password for confirmation\n~ ")
             if password == confirm:
                 password = bytes(password, "utf-8")
                 password = cipher_suite.encrypt(password)
@@ -116,37 +120,39 @@ while True:
                     cipher_suite1 = Fernet(k)
                     x = cipher_suite1.decrypt(x)
                     x = x.decode("utf-8")
-                    print(f"\nThe required password for your account is {x}\n\n")
+                    print(
+                        f"\nThe required password for your account is {x}\n\n")
                 break
             else:
                 print("\nNo such entries found. Please enter again\n\n")
-    elif n==3:
+    elif n == 3:
         while True:
-            platform=input("Please enter the platform\n~ ")
+            platform = input("Please enter the platform\n~ ")
             username = input(
-                    "Please enter your username or email for the respective platform\n~ "
-                )
-            Oldpassword=input("Please enter your old password for this account\n~ ")
+                "Please enter your username or email for the respective platform\n~ "
+            )
+            Oldpassword = input(
+                "Please enter your old password for this account\n~ ")
             sql = (
-                    "SELECT password,crypt FROM "
-                    + masterU
-                    + " WHERE platform=%s AND username=%s"
-                )
+                "SELECT password,crypt FROM "
+                + masterU
+                + " WHERE platform=%s AND username=%s"
+            )
             val = (platform, username)
             cursor.execute(sql, val)
             password = cursor.fetchall()
             if len(password) > 0:
-                crypt=bytes(password[0][1], "utf-8")
+                crypt = bytes(password[0][1], "utf-8")
                 cipher_suite1 = Fernet(crypt)
                 while True:
-                    Newpassword=input("Please enter the new password\n~ ")
-                    confirm=input("Please re enter for confirmation\n~ ")
-                    if Newpassword==confirm:
-                        Newpassword=bytes(Newpassword,'utf-8')
-                        passu=cipher_suite1.encrypt(Newpassword)
-                        sql="UPDATE "+masterU+" SET password=%s WHERE username=%s AND platform=%s"
-                        val=(passu,username,platform)
-                        cursor.execute(sql,val)
+                    Newpassword = input("Please enter the new password\n~ ")
+                    confirm = input("Please re enter for confirmation\n~ ")
+                    if Newpassword == confirm:
+                        Newpassword = bytes(Newpassword, 'utf-8')
+                        passu = cipher_suite1.encrypt(Newpassword)
+                        sql = "UPDATE "+masterU+" SET password=%s WHERE username=%s AND platform=%s"
+                        val = (passu, username, platform)
+                        cursor.execute(sql, val)
                         mydb.commit()
                         print("Password changed successfully")
                         break
